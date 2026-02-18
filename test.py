@@ -12,23 +12,29 @@ cell_size = 10
 for i in range(grid_width):
     cell_grid.append([])
     for j in range(grid_height):
-        cell_grid[i].append(cell.cell(i, j, (randint(0, 255), randint(0, 255), randint(0, 255))))
+        cell_grid[i].append(cell.cell(i, j, bool(randint(0,10) == 10)))
 
 pygame.init()
 screen = pygame.display.set_mode((400, 300))
 
 running = True
 
-while running:
-
+def print_grid():
     for i in range(grid_width):
         for j in range(grid_height):
-            pygame.draw.rect(screen, cell_grid[i][j].colour, (i*cell_size, j*cell_size, cell_size, cell_size))
+            if cell_grid[i][j].state:
+                pygame.draw.rect(screen, (255, 255, 255), (i*cell_size, j*cell_size, cell_size, cell_size))
     
     pygame.display.flip()
 
+def rules():
+    ...
 
-
+while running:
+    print_grid()
+    rules()
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
+
+    
