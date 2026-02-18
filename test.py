@@ -1,56 +1,33 @@
 from random import randint
 import pygame
-import cell
-
-cell_grid = []
-
-screen_width = 700
-screen_height = 700
-
-cell_size = 5
+import elements
 
 
-grid_width = screen_width // cell_size
-grid_height = screen_height // cell_size
+def random_grid(width, height, cell_size):
+    grid = elements.grid(width, height, cell_size)
+    for i in range(grid.width):
+        for j in range(grid.height):
+            grid.cell_grid[i][j] = elements.cell(i, j, bool(randint(0,10) == 10))
+    return grid
 
+def empty_grid(width, height, cell_size):
+    return elements.grid(width, height, cell_size)
 
-
-
-def random_grid():
-    for i in range(grid_width):
-        cell_grid.append([])
-        for j in range(grid_height):
-            cell_grid[i].append(cell.cell(i, j, bool(randint(0,10) == 10)))
-
-def empty_grid():
-    for i in range(grid_width):
-        cell_grid.append([])
-        for j in range(grid_height):
-            cell_grid[i].append(cell.cell(i, j, False))
-
-random_grid()
-
-
-pygame.init()
-screen = pygame.display.set_mode((screen_width, screen_height))
-
-running = True
-
-def print_grid():
+def print_grid(grid, screen):
     screen.fill((0, 0, 0))
-    for i in range(grid_width):
-        for j in range(grid_height):
-            if cell_grid[i][j].state:
-                pygame.draw.rect(screen, (255, 255, 255), (i*cell_size, j*cell_size, cell_size, cell_size))
+    for i in range(grid.width):
+        for j in range(grid.height):
+            if grid.cell_grid[i][j].state:
+                pygame.draw.rect(screen, (255, 255, 255), (i*grid.cell_size, j*grid.cell_size, grid.cell_size, grid.cell_size))
     pygame.display.flip()
 
-def game_of_life():
+def game_of_life(grid):
     ALIVE = True
 
-    buffer = [[False for j in range(grid_height)] for i in range(grid_width)]
+    buffer = [[False for j in range(grid.height)] for i in range(grid.width)]
 
-    for i in range(grid_width):
-        for j in range(grid_height):
+    for i in range(grid.width):
+        for j in range(grid.height):
 
             neighbors = 0
         
@@ -58,27 +35,39 @@ def game_of_life():
                 for y_offset in range(-1, 2):
                     if x_offset == 0 and y_offset == 0:
                         continue
-                    if i + x_offset < 0 or i + x_offset >= grid_width or j + y_offset < 0 or j + y_offset >= grid_height:
+                    if i + x_offset < 0 or i + x_offset >= grid.width or j + y_offset < 0 or j + y_offset >= grid.height:
                         continue
-                    if cell_grid[i + x_offset][j + y_offset].state == ALIVE:
+                    if grid.cell_grid[i + x_offset][j + y_offset].state == ALIVE:
                         neighbors += 1
             
 
-            if (neighbors == 3 or (cell_grid[i][j].state == ALIVE and neighbors == 2)):
+            if (neighbors == 3 or (grid.cell_grid[i][j].state == ALIVE and neighbors == 2)):
                 buffer[i][j] = ALIVE
-            else:
-                buffer[i][j] = False
 
-    for i in range(grid_width):
-        for j in range(grid_height):
-            cell_grid[i][j].state = buffer[i][j]
 
-            
-    
+    for i in range(grid.width):
+        for j in range(grid.height):
+            grid.cell_grid[i][j].state = buffer[i][j]
+
+
+
+
+
+
+
+
+running = True
+
+main_grid = random_grid(100, 100, 5)
+second_grid = empty_grid(100, 100, 5)
+
+pygame.init()
+pygame.display.set_caption("Game of Life")
+screen = pygame.display.set_mode((main_grid.screen_width, main_grid.screen_height))
 
 while running:
-    print_grid()
-    game_of_life()
+    print_grid(main_grid, screen)
+    game_of_life(main_grid)
     # wait_time = 100
     # pygame.time.wait(wait_time)
     for event in pygame.event.get():
